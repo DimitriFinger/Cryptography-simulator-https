@@ -33,23 +33,6 @@ def get_password(V):
     print('\nS value:\n' + S)    
     return S[:32]
 
-def teste(B,a,p):
-    
-    B_decimal = int(B,16)
-    print("VALOR B DECIMAL", B_decimal)
-    
-    V = pow(B_decimal,a,p) #V = B^a mod p
-    print("VALOR DE V:", V)
-    print("\nV HEXADECIMAL", hex(V) )
-    nob = int(math.ceil(V.bit_length()/8))
-    vbytes = V.to_bytes(nob, byteorder='big') #turn V into bytes array
-
-    hash_obj = SHA256.new(vbytes)
-
-    S = hash_obj.hexdigest()[:32]
-    print("\nNOVO PASSWORD: ", S)
-
-
 
 
 def AES_decrypt(message, password):
@@ -57,7 +40,7 @@ def AES_decrypt(message, password):
     bytes_password = bytes.fromhex(password)
     iv = bytes_message[:16]
     cipher = AES.new(bytes_password, AES.MODE_CBC, iv)
-    return (cipher.decrypt(bytes_message[16:]))
+    return (cipher.decrypt(bytes_message[16:])).decode()
 
 
 
@@ -85,7 +68,7 @@ if __name__ == "__main__":
     #                 B9E40214 2F6790F9    
     print("\nA hexadecimal:\n" + ' '.join([A_hexadecimal[i:i+8] for i in range(0, len(A_hexadecimal), 8)]))
 
-    B_hexadecimal = "108D59BFC4B9645AA3BADED53BE431447A64FAF2161D349E5AE14C211657CA11BEFDD988DCE05204444F6FD76DB9A65F886F0335877233E17136D707DDFBB5C0F3CEF56FE970D28EE51AAAADB8B2187683C6C297AC61EE30D3D6D013886FC71A9B99DBD2AC3CC64408421B02D2B82021DDEE035DD7B968494FC9229865B7E121"
+    B_hexadecimal = "7B1DD90FD7313D59DF4065FD8F2CB7B29A2A40E7B556014C3821990C59D3F51EC0C43BE565DCA759D663C2027C65F88C7D506DF86A513C6436F5ECE274DB840A393CA6C5D6C66585EEB7C2FFD2E97A12008437B768F28501325633542FC7803FD341B00BFA8B9B91497D63948DA3DACAD356FCE1E2C998D6D750F9E37B031409"
     # B_hexadecimal value given by teacher
     # B_hexadecimal = 108D59BF C4B9645A A3BADED5 3BE43144 7A64FAF2 161D349E
     #                 5AE14C21 1657CA11 BEFDD988 DCE05204 444F6FD7 6DB9A65F
@@ -103,8 +86,8 @@ if __name__ == "__main__":
 
     print("\n------------------------- Second step -----------------------")
 
-    teste(B_hexadecimal,a,p_decimal)
-    message = "0C53AF18C274D9F7656196DC231014D81A772BA08B91BFA869C696E6E244938BE37876EBED1F438BFDD08D979C755B29BBC351CF8A2C196D5005929DC130BE4FD7BE104FF253E2C2D7CFF70E1C3A861926159ED4B6730B7BF0C2038E5C3562B7"
+    #teste(B_hexadecimal,a,p_decimal)
+    message = "A478E62F9A8AE3F83DFBCD619DFA332483FF8E830CC958060947D518BB69EA3763D6FFECF82AA1784DD4EB34941198E8DCEED40F76CD94878F4B2C58AEDA0C8ED0F0E0DFA34F3F71B32FF0C5E2549A9FB21BEB2172FCD97F426755824370D2E3F05918CCC370851BF7206907519205ED3C4DF11AB24BD8E2EB498CEE57E2C2115A825F7687A9523805B644E1D63EF06B"
     print("\nMessage given by teacher:\n" + message)
     cifra = AES_decrypt(message, password)
-    print("\ndecrypt:", cifra)
+    print("\nPlain text:", cifra)
