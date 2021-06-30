@@ -1,6 +1,7 @@
-import random, math
+import random
 from Crypto.Hash import SHA256
 from Crypto.Cipher import AES
+from Crypto.Random import get_random_bytes
 
 p_hexadecimal = "B10B8F96A080E01DDE92DE5EAE5D54EC52C99FBCFB06A3C69A6A9DCA52D23B616073E28675A23D189838EF1E2EE652C013ECB4AEA906112324975C3CD49B83BFACCBDD7D90C4BD7098488E9C219A73724EFFD6FAE5644738FAA31A4FF55BCCC0A151AF5F0DC8B4BD45BF37DF365C1A65E68CFDA76D4DA708DF1FB2BC2E4A4371"
 g_hexadecimal = "A4D1CBD5C3FD34126765A442EFB99905F8104DD258AC507FD6406CFF14266D31266FEA1E5C41564B777E690F5504F213160217B4B01B886A5E91547F9E2749F4D7FBD7D3B9A92EE1909D0D2263F80A76A6A24C087A091F531DBF0A0169B6A28AD662A4D18E73AFA32D779D5918D08BC8858F4DCEF97C2A24855E6EEB22B3B2E5"
@@ -16,13 +17,13 @@ def generate_random_a_value(p_decimal):
 
 def calculate_A(a, p, g):
     A_decimal = pow(g,a,p)
-    print("\nA decimal: " + str(A_decimal))
+    print("\nA decimal: ", A_decimal)
     A_hexadecimal = hex(A_decimal)    
     return A_hexadecimal[2:].upper()
 
 def calculate_V(B,a,p):
     B_decimal = int(B,16)
-    print("\nB decimal: " + str(B_decimal))
+    print("\nB decimal: ", B_decimal)
     return pow(B_decimal,a,p)
 
 def get_password(V):
@@ -30,17 +31,31 @@ def get_password(V):
     h = SHA256.new()
     h.update(bytes.fromhex(V_hexadecimal))
     S = h.hexdigest().upper()  
-    print('\nS value:\n' + S)    
+    print('\nS value:\n', S)    
     return S[:32]
-
-
 
 def AES_decrypt(message, password):
     bytes_message = bytes.fromhex(message)
     bytes_password = bytes.fromhex(password)
     iv = bytes_message[:16]
     cipher = AES.new(bytes_password, AES.MODE_CBC, iv)
-    return (cipher.decrypt(bytes_message[16:])).decode()
+    return unpadding(cipher.decrypt(bytes_message[16:]))
+
+def unpadding(cipher):
+    plain_text = cipher[:-cipher[len(cipher)-1]].decode()
+    return plain_text
+
+def padding(message):
+    length = 16 - (len(message) % 16)
+    message += bytes([length])*length  
+    return message
+
+def AES_encrypt(message, password):
+    message = padding(message)
+    bytes_password = bytes.fromhex(password)
+    iv = get_random_bytes(16)
+    aes = AES.new(bytes_password, AES.MODE_CBC, iv)
+    return iv + aes.encrypt(message)
 
 
 
@@ -48,14 +63,7 @@ if __name__ == "__main__":
 
     print("------------------------- First step -----------------------")
 
-    print('p_decimal', p_decimal)
-    print('g_decimal', g_decimal)   
-
     a = generate_random_a_value(p_decimal)
-    x = hex(a)
-
-    print("\n a :")
-    print("\n a hexa: \n", x)
     # a = 123705312412318916704247743587675603001627154551172868392175465183200784471918996863253192551547811473668156778008783691613079446343592061823441420292256291907063602243168905562636317108716473779802217627667873328989749104444477128445677107334922735974961431126411924656090058162704483844784149775442141726090
     
     A_hexadecimal = calculate_A(a,p_decimal,g_decimal)
@@ -79,15 +87,22 @@ if __name__ == "__main__":
     print("\nB hexadecimal:\n" + ' '.join([B_hexadecimal[i:i+8] for i in range(0, len(B_hexadecimal), 8)]))
 
     V = calculate_V(B_hexadecimal, a, p_decimal)
-    print("\nV value: " + str(V))
+    print("\nV value:\n", V)
 
     password = get_password(V)
-    print("\nDiffie-Hellman's password: \n" + password)
+    print("\nDiffie-Hellman's password: \n", password)
 
     print("\n------------------------- Second step -----------------------")
 
-    #teste(B_hexadecimal,a,p_decimal)
     message = "A478E62F9A8AE3F83DFBCD619DFA332483FF8E830CC958060947D518BB69EA3763D6FFECF82AA1784DD4EB34941198E8DCEED40F76CD94878F4B2C58AEDA0C8ED0F0E0DFA34F3F71B32FF0C5E2549A9FB21BEB2172FCD97F426755824370D2E3F05918CCC370851BF7206907519205ED3C4DF11AB24BD8E2EB498CEE57E2C2115A825F7687A9523805B644E1D63EF06B"
-    print("\nMessage given by teacher:\n" + message)
-    cifra = AES_decrypt(message, password)
-    print("\nPlain text:", cifra)
+    print("\nMessage given by teacher:\n", message)
+
+    plain_text = AES_decrypt(message, password)
+    print("\nPlain text:\n", plain_text)
+    
+    reversed_plain_text = plain_text[::-1].encode()
+    print("\nReversed plain text:\n", reversed_plain_text)
+
+    final_message_to_sent = AES_encrypt(reversed_plain_text, password).hex().upper()
+    print("\n Plaint text reversed and crypted:\n", final_message_to_sent)
+   
