@@ -24,7 +24,7 @@ from Crypto.Random import get_random_bytes
 #   S = B1FCF45EFA1765C79C7BE5E0D600E8AD096F5ECD65FCFE9436F23AF1E7CA101F
 #   password = B1FCF45EFA1765C79C7BE5E0D600E8AD
 #
-# 6: decrypt using AES at MODE_CBC, first 128bits are iv. Generenate unpadded decrypted message   
+# 6: decrypt message using AES at MODE_CBC, first 128bits are iv. Generenate unpadded decrypted message from remaining blocks 
 #   plain text: Acho que agora foi :-). Um bit de diferença já invalida tudo. Manda esta msg de volta invertida e cifrada. Valeu
 #
 # 7: message is reversed and padded, then encrypted and sent to teacher
@@ -107,13 +107,6 @@ if __name__ == "__main__":
     # a = 123705312412318916704247743587675603001627154551172868392175465183200784471918996863253192551547811473668156778008783691613079446343592061823441420292256291907063602243168905562636317108716473779802217627667873328989749104444477128445677107334922735974961431126411924656090058162704483844784149775442141726090
     
     # A_hexadeximal value sent to teacher
-    # A_hexadecimal = AC4A952F 24FEA263 270ADD00 1C45265E 189F2F4E 19F13FDE 
-    #                 CD953019 242A10F3 E0FEC19B AD7244CA 2EF3A73B 03AC51B0
-    #                 B7ED36D5 17974BEA FD065C2F E6CA3657 3D40F504 34DCBACD
-    #                 CC3FED0B DD60A131 C4744721 BF6B8118 F1F8FAAB 0D6CC603
-    #                 0401EAF2 64356C46 5F15625A 41D46449 C08D1CE8 1A0116EA
-    #                 B9E40214 2F6790F9    
-
     A_hexadecimal = calculate_A(a,p_decimal,g_decimal)
     print("\nA hexadecimal:\n" + ' '.join([A_hexadecimal[i:i+8] for i in range(0, len(A_hexadecimal), 8)]))
 
